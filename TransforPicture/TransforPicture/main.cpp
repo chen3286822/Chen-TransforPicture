@@ -52,7 +52,7 @@ int main()
 
 
 	ifstream ifs(szFormatFile);
-	while (!ifs.fail())
+	while (!ifs.eof())
 	{
 		int iSrcName = 0;
 		int iTarName = 0;
@@ -87,32 +87,48 @@ int main()
 		int iTarDir = vTarName[i]/100;
 		int iTarName = vTarName[i]%100;
 
+		char szRealSrcDir[10];
+		char szRealSrcName[20];
+		char szRealTarDir[10];
+		char szRealTarName[20];
+		if(iSrcDir < 10)
+			sprintf(szRealSrcDir,"00%d",iSrcDir);
+		else if(iSrcDir < 100)
+			sprintf(szRealSrcDir,"0%d",iSrcDir);
+		else
+			sprintf(szRealSrcDir,"%d",iSrcDir);
+		if(iSrcName < 10)
+			sprintf(szRealSrcName,"0%d.tex",iSrcName);
+		else
+			sprintf(szRealSrcName,"%d.tex",iSrcName);
+
+		if(iTarDir < 10)
+			sprintf(szRealTarDir,"00%d",iTarDir);
+		else if(iTarDir < 100)
+			sprintf(szRealTarDir,"0%d",iTarDir);
+		else
+			sprintf(szRealTarDir,"%d",iTarDir);
+		if(iTarName < 10)
+			sprintf(szRealTarName,"0%d.tex",iTarName);
+		else
+			sprintf(szRealTarName,"%d.tex",iTarName);
+
 		for (int j=0;j<3;j++)
 		{
 			char szSrcFile[255];
 			char szTempFile[255];
 			char szTempFileDir[255];
-			if(iSrcDir < 100)
-			{
-				sprintf(szSrcFile,"%s/0%d/0%d%d.tex",szSrcItemPath[j].c_str(),iSrcDir,iSrcDir,iSrcName);
-			}
-			else
-			{
-				sprintf(szSrcFile,"%s/%d/%d%d.tex",szSrcItemPath[j].c_str(),iSrcDir,iSrcDir,iSrcName);
-			}
-
-			if(iTarDir < 100)
-			{
-				sprintf(szTempFile,"%s/0%d/0%d%d.tex",szTempItemPath[j].c_str(),iTarDir,iTarDir,iTarName);
-				sprintf(szTempFileDir,"%s/0%d",szTempItemPath[j].c_str(),iTarDir);
-			}
-			else
-			{
-				sprintf(szTempFile,"%s/%d/%d%d.tex",szTempItemPath[j].c_str(),iTarDir,iTarDir,iTarName);
-				sprintf(szTempFileDir,"%s/%d",szTempItemPath[j].c_str(),iTarDir);
-			}
+			sprintf(szSrcFile,"%s/%s/%s%s",szSrcItemPath[j].c_str(),szRealSrcDir,szRealSrcDir,szRealSrcName);
+			sprintf(szTempFile,"%s/%s/%s%s",szTempItemPath[j].c_str(),szRealTarDir,szRealTarDir,szRealTarName);
+			sprintf(szTempFileDir,"%s/%s",szTempItemPath[j].c_str(),szRealTarDir);
 
 			ifstream ifsSrc(szSrcFile,ios::binary|ios::in);
+			if(ifsSrc.fail())
+			{
+				cout << szSrcFile  << "不存在" << endl;
+				ifsSrc.close();
+				continue;
+			}
 
 			//首先需要创建文件夹
 			if (access(szTempFileDir,0) != 0)
@@ -126,13 +142,12 @@ int main()
 			{
 				ofsTemp << ifsSrc.rdbuf();
 			}
-			if(ifsSrc.fail())
-				cout << iSrcDir << "/" << iSrcDir << vSrcName[i] << "不存在" << endl;
+
 			ofsTemp.close();
 			ifsSrc.close();
 		}
 	}
 
-
+	system("pause");
 	return 0;
 }
